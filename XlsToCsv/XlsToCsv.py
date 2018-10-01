@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import xlrd
 import io
 
@@ -12,6 +14,6 @@ for i in range(rb.nsheets):
             row_csv.append(str(cell))
         csv.append(';'.join(row_csv) + '\n')
 
-with io.open('out.csv', 'w') as f:
+with io.open('out.csv', 'w', encoding='utf8') as f:
     f.writelines(csv)
 
