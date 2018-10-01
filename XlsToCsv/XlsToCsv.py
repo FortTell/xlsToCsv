@@ -5,9 +5,9 @@ import xlrd
 
 def parse_cell(s, i):
     if not isinstance(s, float):
-        return str.replace(str(s), ';', ',')
+        return str(s).replace(';', ',')
     precision = 0 if i == 0 else 2
-    return ("{0:."+str(precision)+"f}").format(s)
+    return ("{0:."+str(precision)+"f}").format(s).replace('.', ',')
 
 def create_csv(in_filename, split_sheets):
     rb = xlrd.open_workbook(in_filename)
