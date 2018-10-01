@@ -9,15 +9,20 @@ def parse_cell(s, i):
     precision = 0 if i == 0 else 2
     return ("{0:."+str(precision)+"f}").format(s)
 
-def create_csv(in_filename):
+def create_csv(in_filename, split_sheets):
     rb = xlrd.open_workbook(in_filename)
     csv = []
     for i in range(rb.nsheets):
         sheet = rb.sheet_by_index(i)
+        sheet_csv = []
         for j in range(sheet.nrows):
             row = sheet.row_values(j)
             row_csv = [parse_cell(row[k], k) for k in range(len(row))]   
-            csv.append(';'.join(row_csv) + '\n')
+            sheet_csv.append(';'.join(row_csv) + '\n')
+        if split_sheets:
+            csv.append(sheet_csv)
+        else:
+            csv.extend(sheet_csv)
     return csv
 
 def parse_cl_args(argv):
@@ -46,15 +51,19 @@ def parse_cl_args(argv):
         sys.exit()
     return in_filename, out_filename, split_sheets
 
-def write_csv(csv, out_filename, split_files):
-    with io.open(out_filename, 'w', encoding='utf8') as f:
-        f.writelines(csv)
-    raise TypeError
+def write_csv(csv, out_filename, split_sheets):
+    if not split_sheets:
+        with io.open(out_filename, 'w', encoding='utf8') as f:
+            f.writelines(csv)
+            return
+    for i in range(len(csv)):
+        with io.open(out_filename[:-4] + str(i) + '.csv', 'w', encoding='utf8') as f:
+            f.writelines(csv[i])
 
 def main(argv):
     in_filename, out_filename, split_sheets = parse_cl_args(argv)
-    csv = create_csv(in_filename, split_files)
-    write_csv(csv, out_filename, split_files)
+    csv = create_csv(in_filename, split_sheets)
+    write_csv(csv, out_filename, split_sheets)
     
 if __name__ == "__main__":
     main(sys.argv[1:])
